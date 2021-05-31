@@ -293,7 +293,7 @@ function calculator(button){
     }
     else if(button.type == "trigo_function"){
 
-        data.operation.push(button.symbol + "(");
+        data.operation.push(button.symbol + "(" );
         data.formula.push( button.formula );
 
     }
@@ -323,7 +323,7 @@ function calculator(button){
             data.formula.push(formula);            
             
             data.operation.push( "2)" );
-            data.formula.push( "2)" );
+            data.formula.push( "2)" );            
             
         }
         else {
@@ -365,8 +365,24 @@ function calculator(button){
         //join formula
         formula_str = data.formula.join('');
         
-        let result;
 
+        //fix power function issues
+        let POWER_SEARCH_RESULT = search(data.formula, POWER);
+
+        //fix factorial function issues
+        let FACT_SEARCH_RESULT = search(data.formula, FACTORIAL);
+
+        //power functions for base and replace with right formula
+        const BASES = powerBaseGetter(data.formula, POWER_SEARCH_RESULT);
+        BASES.forEach( base => {
+            let toReplace = base + POWER;
+            let replacement = "Math.pow(" + base + ",";
+
+            formula_str = formula_str.replace(toReplace, replacement);
+        })
+
+
+        let result;
         //check if there is an error in the input
         try{
             result = eval(formula_str);
@@ -403,6 +419,51 @@ function updateResultOperation(result){
     output_result_element.innerHTML = result;
 }
 
+//Search array for the index of the factorial and power functions
+function search(array, keyword){
+    let search_result = [];
+
+    array.forEach(  (element, index) => {
+
+        if( element == keyword) search_result.push(index);  //push index into array
+    })
+
+    return search_result;
+}
+
+//Get bases of the powers
+function powerBaseGetter(formula, POWER_SEARCH_RESULT){
+    //save the bases to an array
+    let powers_bases = [];
+
+    POWER_SEARCH_RESULT.forEach( power_index => {
+        let base = []; //current base
+        let parenthesis_count = 0;  //get rid of parenthesis
+        let previous_index = power_index - 1; 
+
+        while( previous_index >= 0){
+
+            if( formula[previous_index] == "(" ) parenthesis_count--; //get rid of first parenthesis
+            if( formula[previous_index] == ")" ) parenthesis_count++;
+
+            let is_operator = false;
+            OPERATORS.forEach( OPERATOR => {
+                if( formula[previous_index] == OPERATOR ) is_operator = true;
+            })
+
+            let is_power = formula[previous_index] == POWER;
+
+            if ( (is_operator && parenthesis_count == 0) || is_power) break;
+
+            base.unshift( formula[previous_index] );
+            previous_index--;
+        }
+
+        //push base to join
+        powers_bases.push( base.join('') );
+    })
+    return powers_bases;
+}
 
 //Trigonometric Function
 function trigo(callback, angle){
