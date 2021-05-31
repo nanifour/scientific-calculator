@@ -306,21 +306,21 @@ function calculator(button){
             formula = button.formula;
 
             data.operation.push(symbol);
-            data.operation.push(formula);
+            data.formula.push(formula);
         }
         else if(button.name == "power"){  //fix power button symbol & formula
             symbol = "ˆ(";
             formula = button.formula;
 
             data.operation.push(symbol);
-            data.operation.push(formula);
+            data.formula.push(formula);
         }
         else if(button.name == "square"){  //fix square button to include the 2
             symbol = "ˆ(";
             formula = button.formula;
 
             data.operation.push(symbol);
-            data.operation.push(formula);            
+            data.formula.push(formula);            
             
             data.operation.push( "2)" );
             data.formula.push( "2)" );
@@ -332,7 +332,7 @@ function calculator(button){
             formula = button.formula + "(";
 
             data.operation.push(symbol);
-            data.operation.push(formula);
+            data.formula.push(formula);
         }
 
     }
